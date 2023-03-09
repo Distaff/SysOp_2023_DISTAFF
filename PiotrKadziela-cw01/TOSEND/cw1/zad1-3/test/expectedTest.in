@@ -1,0 +1,14 @@
+init 20
+count fileData.cpp
+count fileData.h
+count main.cpp
+count makefile
+show 0
+show 1
+show 2
+show 3
+delete 3
+delete 2
+delete 1
+delete 0
+destroy

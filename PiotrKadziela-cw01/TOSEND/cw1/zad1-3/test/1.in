@@ -1,0 +1,12 @@
+init 14
+count ./test/testrc/TESTFILE.TXT
+show 0
+count ./test/testrc/TESTFILE2.TXT
+count ./test/testrc/TESTFILE3.TXT
+count ./test/testrc/TESTFILE.TXT
+show 0
+show 1
+show 2
+show 3
+delete 2
+destroy

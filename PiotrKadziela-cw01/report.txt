@@ -1,0 +1,23 @@
+Piotr Kądziela
+411327
+
+Działające elementy:
+
+- Z zadania 1 działa wszystko, ale biblioteka została zaimplementowana 
+obiektowo w C++. Inicjalizacja odbywa się w konstruktorze klasy, a zwalnianie 
+pamięci w destruktorze. Biblioteka jest zaimplementowana w pliku fileData.cpp.
+
+- Zadanie 2 zostało zaimplementowane w main.cpp. Działa prawie wszystko - nie 
+ma dynamicznego ładowania biblioteki przy użyciu dlopen() - w C++ jest to 
+rozwiązanie skrajnie problematyczne i w praktyce rzadko spotykane. Przyczyną
+jest tzw. name mangling, uniemożliwiający wczytywanie funkcji poprzez jej 
+nazwę. Jako rozwiązanie stosuje się czasem funkcje w C zwracające wskaźniki na
+odpowiednie funkcje w C++. Funkcje te kompiluje się z użyciem 'extern "C"' 
+przez co ich nazwy nie zostają zmodyfikowane. Jest to jednak bardzo niewygodne
+oraz czasochłonne rozwiązanie, szczególnie gdy używa się klas.
+
+- Zadanie 3 również zostało wykonane całe (z pominięciem testów biblioteki 
+ładowanej przy użyciu dlopen()). Testowano przy użyciu flag -O2, -O0 oraz -Os.
+Wyniki testów znajdują się w ./test/results/. Wpływ flag optymalizacji okazał
+się być niemal pomijalny. Biblioteka dołączana statycznie okazała się 
+minimalnie szybsza. 

@@ -1,0 +1,90 @@
+Operation 'init 20' finished in: 
+46.2us realtime
+  46.2us usertime
+  46.2us systemtime
+
+Operation 'count fileData.cpp' finished in: 
+17200us realtime
+  17200us usertime
+  17199.9us systemtime
+
+Operation 'count fileData.h' finished in: 
+16885.3us realtime
+  16885.5us usertime
+  16885.5us systemtime
+
+Operation 'count main.cpp' finished in: 
+17240.8us realtime
+  17241us usertime
+  17241us systemtime
+
+Operation 'count makefile' finished in: 
+16376.6us realtime
+  16376.7us usertime
+  16376.7us systemtime
+
+
+Record 0:
+  lines: 90
+  words: 248
+  chars: 2514
+Operation 'show 0' finished in: 
+8.6us realtime
+  8.6us usertime
+  8.6us systemtime
+
+
+Record 1:
+  lines: 41
+  words: 57
+  chars: 577
+Operation 'show 1' finished in: 
+5.5us realtime
+  5.4us usertime
+  5.4us systemtime
+
+
+Record 2:
+  lines: 101
+  words: 304
+  chars: 2693
+Operation 'show 2' finished in: 
+2.6us realtime
+  2.6us usertime
+  2.6us systemtime
+
+
+Record 3:
+  lines: 68
+  words: 145
+  chars: 1630
+Operation 'show 3' finished in: 
+2.3us realtime
+  2.4us usertime
+  2.4us systemtime
+
+Operation 'delete 3' finished in: 
+2.4us realtime
+  2.4us usertime
+  2.4us systemtime
+
+Operation 'delete 2' finished in: 
+1.8us realtime
+  1.8us usertime
+  1.9us systemtime
+
+Operation 'delete 1' finished in: 
+1.8us realtime
+  1.8us usertime
+  1.8us systemtime
+
+Operation 'delete 0' finished in: 
+1.9us realtime
+  1.9us usertime
+  1.9us systemtime
+
+Operation 'destroy' finished in: 
+1.7us realtime
+  1.7us usertime
+  1.7us systemtime
+
