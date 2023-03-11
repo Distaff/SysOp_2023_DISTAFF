@@ -76,9 +76,9 @@ int main(int argc, char** argv)
 		throw std::runtime_error("Error: cannot open fstream of input file."s);
 	if (!std_outFile)
 		throw std::runtime_error("Error: cannot open fstream of output file."s);
-	if (!posix_inFile)
+	if (posix_inFile == -1)
 		throw std::runtime_error("Error: cannot open POSIX input file."s);
-	if (!posix_outFile)
+	if (posix_outFile == -1)
 		throw std::runtime_error("Error: cannot open POSIX output file."s);
 
 
@@ -113,5 +113,8 @@ int main(int argc, char** argv)
 
 	std::cout << ((md5 == md5OfFile(args[3])) ? "\nFiles are identical." : "\nERROR: files are not identical.");
 
+	close(posix_inFile);
+	close(posix_outFile);
+	
 	return 0;
 }

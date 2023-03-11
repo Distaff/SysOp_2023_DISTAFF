@@ -25,7 +25,7 @@ mainObjFile: prep main.cpp
 test: compile prepTest
 	@echo
 	@echo
-	@./bin/out @ a ../test/TESTFILE.IN ../test/result/TESTFILE.OUT
+	@./bin/out ./test/TESTFILE.IN ./test/result/TESTFILE.OUT
 	@echo
 	@echo
 	@echo

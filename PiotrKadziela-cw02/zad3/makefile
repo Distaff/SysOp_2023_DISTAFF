@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall -std=c++17
 OPTLVL=-O0
 
 all: compile compileShared
@@ -10,7 +10,10 @@ clean: cleanTest cleanCompile cleanCMake
 
 
 run: compile
-	./bin/out
+	@echo
+	@echo
+	@echo
+	@./bin/out
 
 compile: mainObjFile
 	$(CC) -Wall $(OPTLVL) ./bin/main.o -o ./bin/out
@@ -22,14 +25,7 @@ mainObjFile: prep main.cpp
 
 
 
-test: compile prepTest
-	@echo
-	@echo
-	@./bin/out @ a ../test/TESTFILE.IN ../test/result/TESTFILE.OUT
-	@echo
-	@echo
-	@echo
-	diff ./test/TESTFILE.OUT ./test/result/TESTFILE.OUT
+test: run
 
 prep:
 	mkdir -p bin/
