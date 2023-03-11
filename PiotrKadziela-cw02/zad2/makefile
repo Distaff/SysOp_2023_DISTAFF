@@ -29,13 +29,15 @@ test: compile prepTest
 	@echo
 	@echo
 	@echo
-	diff ./test/TESTFILE.OUT ./test/result/TESTFILE.OUT
+	diff ./test/result/TMP ./test/result/TESTFILE.OUT
 
 prep:
 	mkdir -p bin/
 
 prepTest:
 	mkdir -p ./test/result/
+	LC_ALL=C tac -rs '.' ./test/TESTFILE.IN  > ./test/result/TMP
+	LC_ALL=
 
 cleanTest:
 	rm -f -r ./test/result/

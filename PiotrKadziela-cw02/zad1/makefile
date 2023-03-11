@@ -25,17 +25,18 @@ mainObjFile: prep main.cpp
 test: compile prepTest
 	@echo
 	@echo
-	@./bin/out @ a ../test/TESTFILE.IN ../test/result/TESTFILE.OUT
+	@./bin/out @ a ./test/TESTFILE.IN ./test/result/TESTFILE.OUT
 	@echo
 	@echo
 	@echo
-	diff ./test/TESTFILE.OUT ./test/result/TESTFILE.OUT
+	diff ./test/result/TMP ./test/result/TESTFILE.OUT
 
 prep:
 	mkdir -p bin/
 
 prepTest:
 	mkdir -p ./test/result/
+	tr @ a < ./test/TESTFILE.IN > ./test/result/TMP
 
 cleanTest:
 	rm -f -r ./test/result/

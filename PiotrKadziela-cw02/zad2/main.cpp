@@ -8,7 +8,7 @@
 
 constexpr int BUFFER_SIZE = 1024;
 
-using namespace std::string_literals;	//for "foobar"s style std::string literals
+using namespace std::string_literals;
 
 std::string md5OfFile(std::string path) {
 	int errCode = system(("md5sum "s + path + " > /tmp/md5OfFile").c_str());
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 		<< " Elapsed time: " << std::fixed << std::setprecision(3) << durationMicros / 1000.0 << "ms\n";
 
 
-	std::cout << ((md5 == md5OfFile(args[1])) ? "\nFiles are identical." : "\nERROR: files are not identical.");
+	std::cout << ((md5 == md5OfFile(args[1])) ? "\nOutput is identical." : "\nERROR: Output is not identical.");
 
 	return 0;
 }

@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 
 
 
-	std::cout << ((md5 == md5OfFile(args[3])) ? "\nFiles are identical." : "\nERROR: files are not identical.");
+	std::cout << ((md5 == md5OfFile(args[3])) ? "\nOutput is identical." : "\nERROR: Output is not identical.");
 
 	close(posix_inFile);
 	close(posix_outFile);
