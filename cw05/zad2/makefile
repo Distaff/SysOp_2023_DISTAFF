@@ -22,22 +22,22 @@ mainObjFile: prep main.cpp
 
 
 
-test: compile prepTest
-	@echo
-	@echo
-	@./bin/out ./test/TESTFILE.IN ./test/result/TESTFILE.OUT
+test: compile
 	@echo
 	@echo
 	@echo
-	diff ./test/result/TMP ./test/result/TESTFILE.OUT
+	./bin/out 0.000000001 2
+	@echo
+	@echo
+	@echo
+	./bin/out 0.000000001 8
+	@echo
+	@echo
+	@echo		
+	./bin/out 0.000000001 64
 
 prep:
 	mkdir -p bin/
-
-prepTest:
-	mkdir -p ./test/result/
-	LC_ALL=C tac -rs '.' ./test/TESTFILE.IN  > ./test/result/TMP
-	LC_ALL=
 
 cleanTest:
 	rm -f -r ./test/result/
