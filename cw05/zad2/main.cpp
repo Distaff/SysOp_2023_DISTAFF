@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 {
 	std::vector<std::string> args(argv, argv + argc);
 
-	if(args.size() != 3 && args.size() != 0)
+	if(args.size() != 3)
 		throw std::runtime_error("Two arguments expected!");
 	
 	double rectangle_size = (stod(args[1]));
