@@ -6,39 +6,45 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "server.h"
-#include "client.h"
-
+#include <mutex>
 
 using namespace std::string_literals;
+
+constexpr int MAX_TIME = 8000;	//Max cutting time in ms
+
+class Pool {
+	Pool(int size);
+
+
+};
+
+class PriorityPool : Pool {
+
+};
+
 
 int main(int argc, char** argv)
 {
 	std::vector<std::string> args(argv, argv + argc);
-	bool is_server;
 
-	if (args.size() == 2) {
-		if (args[1] == "-s" || args[1] == "--server")
-			is_server = true;
-		else if (args[1] == "-c" || args[1] == "--client")
-			is_server = false;
-		else
-			throw std::runtime_error("Incorrect arguments");
-	}
 	
 
-	if (is_server) {
-		std::cout << "Initializing server...\n";
-		server::srv_init();
-		std::cout << "Initialization complete.\n";
-		server::mainLoop();
-	}
-	else {
-		std::cout << "Initializing client...\n";
-		client::client_init();
-		std::cout << "Initialization complete.\n";
-		client::mainLoop();
-	}
-
 	return 0;
+}
+
+
+void handleClient(int client_pid) {
+	bool can_wait = false;
+	if (waiting_room.hasFreePlaces())
+		waiting_room.takePlace();
+	else
+		can_wait = true;
+
+	if (!seat_pool.takePlace(can_wait))
+		exit(0);
+
+	if (!barber_pool.takePlace(can_wait))
+		exit(0);
+
+	std::this_thread::sleep_for(std::chrono::duration<std::chrono::milliseconds>(rand % MAX_TIME));
 }
