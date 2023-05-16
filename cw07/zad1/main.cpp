@@ -8,20 +8,19 @@
 
 #include <mutex>
 
+#include <sys/ipc.h>
+
 using namespace std::string_literals;
 
 constexpr int MAX_TIME = 8000;	//Max cutting time in ms
 
-class Pool {
-	Pool(int size);
+class BarberShop {
+	BarberShop(int M_barbers, int N_seats, int P_waiting_room_capacity) {
+		int semget(ftok("/tmp/sysop_07", 255), int nsems, int flag);
+	};
 
 
 };
-
-class PriorityPool : Pool {
-
-};
-
 
 int main(int argc, char** argv)
 {
