@@ -6,7 +6,7 @@
 using namespace std::string_literals;
 
 namespace common {
-	constexpr int SERVER_QUEUE_PROJ_ID = 0;
+	constexpr int SERVER_QUEUE_PROJ_ID = 255;
 	constexpr int MSG_MAX_LEN = 1024;
 
 

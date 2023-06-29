@@ -8,9 +8,8 @@
 #include <string.h>
 
 #include <unistd.h>
-#include <sys/shm.h>
-#include <sys/ipc.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/mman.h>
 #include <signal.h>
 
@@ -46,14 +45,16 @@ int main(int argc, char** argv)
 	sigact.sa_handler = interrupt_handler;
 	sigaction(SIGINT, &sigact, nullptr);
 
-	system("touch /tmp/cw07");
-	key_t key = ftok("/tmp/cw07", 1);
+	//key_t key = ftok("/cw07", 1);
 
-	int shm_id = shmget(key, SHM_SIZE, IPC_CREAT | 0777);
+	int shm_id = shm_open("/cw07", O_RDWR | O_CREAT, 0777);
 	if (shm_id == -1)
 		throw std::runtime_error("Failed to open shared memory: " + std::string(strerror(errno)));
 
-	int* shmem_ptr = (int*)shmat(shm_id, nullptr, 0);
+	if (ftruncate(shm_id, SHM_SIZE) == -1)
+		throw std::runtime_error("Failed to truncate shared memory: " + std::string(strerror(errno)));
+
+	int* shmem_ptr = (int*) mmap(nullptr, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_id, 0);
 	if (shmem_ptr == (int*) -1)
 		throw std::runtime_error("Failed to map shared memory: " + std::string(strerror(errno)));
 
@@ -63,9 +64,9 @@ int main(int argc, char** argv)
 	seat_pool_ptr = reinterpret_cast<BlockingPool*>(barber_pool_ptr + 1);
 
 	new(waitroom_queue_ptr) WaitroomQueue;
-	new(waitroom_pool_ptr) NonblockingPool("/tmp/cw07_waitroom", WAITING_ROOM);
-	new(barber_pool_ptr) BlockingPool("/tmp/cw07_barbers", BARBERS);
-	new(seat_pool_ptr) BlockingPool("/tmp/cw07_chairs", BARBER_CHAIRS);
+	new(waitroom_pool_ptr) NonblockingPool("/cw07_waitroom", WAITING_ROOM);
+	new(barber_pool_ptr) BlockingPool("/cw07_barbers", BARBERS);
+	new(seat_pool_ptr) BlockingPool("/cw07_chairs", BARBER_CHAIRS);
 
 	std::cout << "MAIN " << ": Init done." << std::endl;
 
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
 
 void interrupt_handler(int sig) {
 	std::cout << "SIGINT signal received! Exiting...\n";
-	shmctl(shmget(ftok("/tmp/cw07", 1), SHM_SIZE, IPC_CREAT | 0777), IPC_RMID, nullptr);
+	shm_unlink("/cw07");
 	waitroom_pool_ptr->~Pool();
 	barber_pool_ptr->~Pool();
 	seat_pool_ptr->~Pool();
@@ -95,7 +96,6 @@ void handleClient(int id) {
 
 	if (!(waitroom_pool_ptr->takePlace())) {
 		std::cout << "CLIENT " << id << ": No place for me. Exiting." << std::endl;
-		//std::cout << "CLIENT " << id << ": No place for me. Exiting. (" + std::string(strerror(errno)) << ")" << std::endl;
 		exit(0);
 	}
 

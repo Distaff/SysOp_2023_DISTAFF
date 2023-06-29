@@ -15,7 +15,7 @@ using namespace std::string_literals;
 int main(int argc, char** argv)
 {
 	std::vector<std::string> args(argv, argv + argc);
-	bool is_server;
+	bool is_server = true;
 
 	if (args.size() == 2) {
 		if (args[1] == "-s" || args[1] == "--server")

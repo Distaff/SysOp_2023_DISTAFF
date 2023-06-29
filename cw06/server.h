@@ -27,7 +27,7 @@ namespace server {
 
 	struct ClientData {
 		int PID;
-		int queue_key;
+		int queue_id;
 	};
 
 
@@ -61,8 +61,9 @@ namespace server {
 		sigaction(SIGTERM, &sigact, nullptr);
 
 		//create queue
+		system("touch /tmp/ssop_cw06_server_queue");
 		server_queue_key = ftok("/tmp/ssop_cw06_server_queue", SERVER_QUEUE_PROJ_ID);
-		queue_id = msgget(server_queue_key, IPC_CREAT | IPC_EXCL | 0777 | IPC_RMID);
+		queue_id = msgget(server_queue_key, IPC_CREAT | 0777 | IPC_RMID);
 
 		if (queue_id == -1)
 			message(THROWING_ERROR, "Failed to create a queue. Reason: "s + strerror(errno));
@@ -71,7 +72,7 @@ namespace server {
 	}
 
 	void mainLoop() {
-		while (0) {
+		while (1) {
 			if (interrupt_flag)
 				break;
 
@@ -83,9 +84,10 @@ namespace server {
 
 			handleToOne();
 
-			//handleToAll();
+			handleToAll();
 		}
 		terminateClients();
+		msgctl(queue_id, IPC_RMID, nullptr);
 		log_file.close();
 		return;
 	}
@@ -93,9 +95,12 @@ namespace server {
 
 	void registerNewClients() {
 		MsgInit buffer;
-		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::INIT), MSG_NOERROR | IPC_NOWAIT)) {	
+
+		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::INIT), MSG_NOERROR | IPC_NOWAIT) != -1) {	
+
 			message(INFO, "Recieved init request from client with PID " + std::to_string(buffer.client_PID));
-			message(NEWLINE_RAW, "Client queue key: " + std::to_string(buffer.client_queue_id));
+			message(NEWLINE_RAW, "Client queue id: " + std::to_string(buffer.client_queue_id));
+
 
 			int new_client_id = 0;
 			if (!client_data.empty())
@@ -106,17 +111,17 @@ namespace server {
 				static_cast<int>(MsgType::INIT),
 				new_client_id 
 			};
-			msgsnd(buffer.client_queue_id, &reply, sizeof(reply) - sizeof(reply.mtype), 0);
+			msgsnd(buffer.client_queue_id, &reply, sizeof(buffer) - sizeof(buffer.mtype), 0);
 		}
 	}
 
 	void deregisterTerminatedClients() {
 		MsgStop buffer;
-		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::STOP), MSG_NOERROR | IPC_NOWAIT)) {
+		while (msgrcv(queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), static_cast<int>(MsgType::STOP), MSG_NOERROR | IPC_NOWAIT) != -1) {
 			message(INFO, "Recieved stop request from client no. " + std::to_string(buffer.client_id));
 			message(NEWLINE_RAW, 
 				" (PID: " + std::to_string(client_data[buffer.client_id].PID) 
-				+ ", queue key: " + std::to_string(client_data[buffer.client_id].queue_key) 
+				+ ", queue key: " + std::to_string(client_data[buffer.client_id].queue_id) 
 				+ ")"
 			);
 			client_data.erase(buffer.client_id);
@@ -125,45 +130,44 @@ namespace server {
 
 	void handleListing() {
 		MsgList buffer;
-		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::LIST), MSG_NOERROR | IPC_NOWAIT)) {
+		while (msgrcv(queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), static_cast<int>(MsgType::LIST), MSG_NOERROR | IPC_NOWAIT) != -1) {
 			message(INFO, "Recieved list request from client no. " + std::to_string(buffer.sender_id));
 
 			MsgList reply = {
 				static_cast<int>(MsgType::LIST),
 				client_data.size()
 			};
-			msgsnd(client_data[buffer.sender_id].queue_key, &reply, sizeof(reply) - sizeof(reply.mtype), 0);
+			msgsnd(client_data[buffer.sender_id].queue_id, &reply, sizeof(reply) - sizeof(reply.mtype), 0);
 
 			for (auto& i : client_data) {
 				MsgListEntity reply = {
 					static_cast<int>(MsgType::LIST_ENTITY),
 					i.first, 
 					i.second.PID, 
-					i.second.queue_key
+					i.second.queue_id
 				};
-				msgsnd(client_data[buffer.sender_id].queue_key, &reply, sizeof(reply) - sizeof(reply.mtype), 0);
+				msgsnd(client_data[buffer.sender_id].queue_id, &reply, sizeof(reply) - sizeof(reply.mtype), 0);
 			}
 		}
 	}
 
 	void handleToOne() {
 		MsgToOne<MSG_MAX_LEN> buffer;
-		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::TO_ONE), MSG_NOERROR | IPC_NOWAIT)) {
+		while (msgrcv(queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), static_cast<int>(MsgType::TO_ONE), MSG_NOERROR | IPC_NOWAIT) != -1) {
 			message(INFO, "Recieved message from client no. " + std::to_string(buffer.sender_id));
 			message(NEWLINE_RAW, "Target client: " + std::to_string(buffer.target_id));
 
-			msgsnd(buffer.sender_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), 0);
+			msgsnd(client_data[buffer.target_id].queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), 0);
 		}
 	}
 
 	void handleToAll() {
 		MsgToAll<MSG_MAX_LEN> buffer;
-		while (msgrcv(queue_id, &buffer, sizeof(buffer), static_cast<int>(MsgType::TO_ALL), MSG_NOERROR | IPC_NOWAIT)) {
+		while (msgrcv(queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), static_cast<int>(MsgType::TO_ALL), MSG_NOERROR | IPC_NOWAIT) != -1) {
 			message(INFO, "Recieved broadcast message request from client no. " + std::to_string(buffer.sender_id));
 
-
 			for (auto& i : client_data) {
-				msgsnd(i.second.queue_key, &buffer, sizeof(buffer) - sizeof(buffer.mtype), 0);			
+				msgsnd(i.second.queue_id, &buffer, sizeof(buffer) - sizeof(buffer.mtype), 0);			
 			}
 		}
 	}
@@ -185,6 +189,7 @@ namespace server {
 		std::time_t time = std::time(nullptr);
 		curr_time_str.resize(std::size("yyyy-mm-ddThh:mm:ssZ"));
 		std::strftime(curr_time_str.data(), curr_time_str.size(), "%FT%TZ", std::gmtime(&time));
+		curr_time_str.pop_back();
 		curr_time_str += ": ";
 
 		std::string msg_type_str;
@@ -209,6 +214,8 @@ namespace server {
 		//std::endl to flush after write
 		std::cout << curr_time_str << msg_type_str << message << std::endl;
 		log_file << curr_time_str << msg_type_str << message << std::endl;
+
+		std::cout.flush();
 
 		if (msg_type == THROWING_ERROR) {
 			throw std::runtime_error(message);
